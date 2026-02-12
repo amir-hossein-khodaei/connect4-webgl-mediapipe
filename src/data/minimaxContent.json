@@ -1,0 +1,30 @@
+{
+  "en": {
+    "section1Title": "1. The Recursive Algorithm",
+    "section1Text": "This game uses the Minimax algorithm with a depth-limited search. It treats Connect 4 as a Zero-Sum Game (Your gain is my loss). The AI builds a 'Game Tree' by recursively simulating moves. At 'Hard' difficulty, it calculates 6 moves ahead (Depth 6), exploring thousands of possible future board states before you even blink.",
+    "section2Title": "2. Heuristic Evaluation Function",
+    "section2Text": "Since we cannot calculate until the end of the game (too many possibilities), we stop at a certain depth and score the board state using a Heuristic Function:",
+    "section2List": [
+      "Center Column Control: +3 points (Strategic value).",
+      "3-in-a-row (Open): +5 points (Attack).",
+      "2-in-a-row (Open): +2 points (Build up).",
+      "Opponent has 3-in-a-row: -4 points (Defensive penalty)."
+    ],
+    "section3Title": "3. Optimization: Alpha-Beta Pruning",
+    "section3Text": "To make the AI faster, we implement Alpha-Beta Pruning. This optimization 'prunes' (cuts off) branches of the decision tree that are mathematically irrelevant. If the AI finds a move that is 'good enough', it stops checking worse options immediately. This allows us to search twice as deep in the same amount of time."
+  },
+  "fa": {
+    "section1Title": "۱. الگوریتم بازگشتی (Recursive)",
+    "section1Text": "این بازی از الگوریتم مینی‌مکس (Minimax) با جستجوی محدود در عمق استفاده می‌کند. این الگوریتم Connect 4 را به عنوان یک «بازی مجموع-صفر» (Zero-Sum Game) در نظر می‌گیرد. هوش مصنوعی با شبیه‌سازی بازگشتی حرکات، یک «درخت بازی» می‌سازد. در سطح دشوار، تا ۶ حرکت جلوتر را محاسبه می‌کند (عمق ۶) و هزاران حالت ممکن آینده را بررسی می‌کند.",
+    "section2Title": "۲. تابع ارزیابی هیوریستیک (Heuristic)",
+    "section2Text": "چون نمی‌توانیم تا پایان بازی تمام حالات را محاسبه کنیم (تعداد حالات بسیار زیاد است)، در عمق مشخصی توقف کرده و صفحه را با استفاده از یک تابع هیوریستیک امتیازدهی می‌کنیم:",
+    "section2List": [
+      "کنترل ستون مرکزی: +۳ امتیاز (ارزش استراتژیک).",
+      "۳ مهره پشت سر هم (باز): +۵ امتیاز (حمله).",
+      "۲ مهره پشت سر هم (باز): +۲ امتیاز (زمینه سازی).",
+      "حریف ۳ مهره دارد: -۴ امتیاز (جریمه دفاعی)."
+    ],
+    "section3Title": "۳. بهینه‌سازی: هرس آلفا-بتا (Alpha-Beta Pruning)",
+    "section3Text": "برای افزایش سرعت هوش مصنوعی، از «هرس آلفا-بتا» استفاده می‌کنیم. این بهینه‌سازی شاخه‌هایی از درخت تصمیم‌گیری را که از نظر ریاضی بی‌اهمیت هستند، «هرس» (قطع) می‌کند. اگر هوش مصنوعی حرکتی پیدا کند که «به اندازه کافی خوب» باشد، بلافاصله بررسی گزینه‌های بدتر را متوقف می‌کند. این به ما اجازه می‌دهد در همان مدت زمان، تا دو برابر عمیق‌تر جستجو کنیم."
+  }
+}
