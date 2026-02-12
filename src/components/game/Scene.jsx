@@ -11,7 +11,7 @@ import TurnManager from './Interaction/TurnManager';
 import ErrorBoundary from '../utils/ErrorBoundary';
 
 const Scene = () => {
-  // FIX: Define baseUrl here so the component can use it
+  // --- FIX: This line defines baseUrl. Without it, the app crashes. ---
   const baseUrl = import.meta.env.BASE_URL;
 
   return (
@@ -19,7 +19,7 @@ const Scene = () => {
       <ErrorBoundary>
         <Canvas 
           shadows 
-          dpr={[1, 1.5]} 
+          dpr={[1, 1.5]}
           gl={{ 
             antialias: false, 
             toneMapping: THREE.ACESFilmicToneMapping, 
@@ -39,7 +39,7 @@ const Scene = () => {
             <SkyWorld />
             <color attach="background" args={['#87CEEB']} />
 
-            {/* FIX: Use baseUrl to find the HDR file on GitHub Pages */}
+            {/* --- FIX: using baseUrl here requires the definition above --- */}
             <Environment 
               files={`${baseUrl}assets/venice_sunset_1k.hdr`} 
               blur={0.8} 
