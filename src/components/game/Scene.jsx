@@ -3,7 +3,6 @@ import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera, Environment } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette, Noise, SMAA } from '@react-three/postprocessing';
 import * as THREE from 'three';
-import { useTexture, useEnvironment } from '@react-three/drei';
 import SkyWorld from './World/SkyWorld';
 import FloatingIsland from './World/FloatingIsland';
 import RuneBoard from './Board/RuneBoard';
@@ -12,12 +11,15 @@ import TurnManager from './Interaction/TurnManager';
 import ErrorBoundary from '../utils/ErrorBoundary';
 
 const Scene = () => {
+  // FIX: Define baseUrl here so the component can use it
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#87CEEB' }}>
       <ErrorBoundary>
         <Canvas 
           shadows 
-          dpr={[1, 1.5]} /* Optimization: Cap DPR at 1.5 (2.0 is heavy for post-processing) */
+          dpr={[1, 1.5]} 
           gl={{ 
             antialias: false, 
             toneMapping: THREE.ACESFilmicToneMapping, 
@@ -35,15 +37,15 @@ const Scene = () => {
             />
             
             <SkyWorld />
-            {/* Fallback background in case HDR fails to load */}
-<color attach="background" args={['#87CEEB']} />
+            <color attach="background" args={['#87CEEB']} />
 
-{/* FIX: Use baseUrl to correctly find the file on GitHub Pages */}
+            {/* FIX: Use baseUrl to find the HDR file on GitHub Pages */}
             <Environment 
               files={`${baseUrl}assets/venice_sunset_1k.hdr`} 
               blur={0.8} 
               background={false} 
             />
+            
             <TurnManager />
 
             <group position={[0, -0.5, 0]}>
@@ -52,7 +54,6 @@ const Scene = () => {
                <SpellCursor />
             </group>
 
-            {/* Optimization: Disable MultiSampling for Bloom performance */}
             <EffectComposer disableNormalPass multisampling={0}>
               <SMAA /> 
               <Bloom 
