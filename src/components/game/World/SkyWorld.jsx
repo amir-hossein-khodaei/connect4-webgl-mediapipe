@@ -7,7 +7,7 @@ const SkyWorld = () => {
   const groupRef = useRef();
   
   // Point to local texture
-  const CLOUD_URL = "/assets/cloud.png";
+  const CLOUD_URL = `${baseUrl}assets/cloud.png`; 
 
   useFrame((state) => {
     if (groupRef.current) {

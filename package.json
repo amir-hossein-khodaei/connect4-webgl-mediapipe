@@ -8,8 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-   "predeploy": "npm run build",     <-- ADD THIS
-  "deploy": "gh-pages -d dist"      <-- ADD THIS 
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1675466862",

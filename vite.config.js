@@ -3,11 +3,12 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/connect4-3d-hand/', // <--- IMPORTANT: Makes the app work in any subfolder
+  // CHANGE THIS LINE: Use your repository name with slashes
+  base: '/connect4-3d-hand/', 
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false, // Disable source maps for production (cleaner/lighter)
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {

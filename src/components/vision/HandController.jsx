@@ -7,9 +7,12 @@ const HandController = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   
+  // FIX 1: Get the repository name for GitHub Pages support
+  const baseUrl = import.meta.env.BASE_URL;
+
   // SAFETY FLAGS
-  const isProcessingRef = useRef(false); // Prevents "Syncing Error" (AI Overload)
-  const isMounted = useRef(false);       // Prevents "Zombie Loops" when switching menus
+  const isProcessingRef = useRef(false); 
+  const isMounted = useRef(false);       
 
   // CONNECTING VISION TO GAME STATE
   const { 
@@ -41,147 +44,125 @@ const HandController = () => {
     return () => { isMounted.current = false; };
   }, []);
 
-  // 1. Get List of Cameras
-  useEffect(() => {
-    const getDevices = async () => {
-      try {
-        const allDevices = await navigator.mediaDevices.enumerateDevices();
-        const videoInputs = allDevices.filter(device => device.kind === 'videoinput');
-        if (isMounted.current) {
-            setDevices(videoInputs);
-            if (videoInputs.length > 0) {
-                setSelectedDeviceId(videoInputs[0].deviceId);
-            }
+  // 1. Helper to fetch devices (Only works AFTER permission is granted)
+  const fetchDevices = async () => {
+    try {
+      const allDevices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = allDevices.filter(device => device.kind === 'videoinput');
+      if (isMounted.current) {
+        setDevices(videoInputs);
+        // If we have devices but no selection, auto-select the first one
+        if (videoInputs.length > 0 && !selectedDeviceId) {
+          setSelectedDeviceId(videoInputs[0].deviceId);
         }
-      } catch (err) {
-        console.error("Error listing devices:", err);
       }
-    };
-    getDevices();
-  }, []);
+    } catch (err) {
+      console.error("Error enumerating devices:", err);
+    }
+  };
 
-  // 2. Start Camera
+  // 2. MAIN STARTUP LOGIC
   useEffect(() => {
-    if (inputMode !== 'hand' || !selectedDeviceId) return;
+    if (inputMode !== 'hand') return;
     
     let currentStream = null;
-    setIsLoaded(false);
-    setCameraError(null);
+    let hands = null;
+    let animationId = null;
 
-    const startCamera = async () => {
+    const startSystem = async () => {
+      setIsLoaded(false);
+      setCameraError(null);
+
       try {
-        // Stop previous stream
-        if (videoRef.current && videoRef.current.srcObject) {
-          const tracks = videoRef.current.srcObject.getTracks();
-          tracks.forEach(track => track.stop());
-        }
-
+        // --- STEP A: Request Permission & Start Stream ---
+        // We do this FIRST so the browser prompt appears.
         const constraints = {
-          video: {
-            deviceId: { exact: selectedDeviceId },
-            width: { ideal: 640 },
-            height: { ideal: 480 },
-            frameRate: { ideal: 30 }
-          }
+          video: selectedDeviceId 
+            ? { deviceId: { exact: selectedDeviceId }, width: { ideal: 640 }, height: { ideal: 480 } }
+            : { width: { ideal: 640 }, height: { ideal: 480 } }
         };
         
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        if (!isMounted.current) {
-            // Component unmounted while camera was asking for permission
-            stream.getTracks().forEach(track => track.stop());
-            return;
-        }
-
         currentStream = stream;
-        
+
+        // --- STEP B: Now that we have permission, get the list of cameras ---
+        await fetchDevices();
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          // IMPORTANT: Wait for 'onloadeddata' before allowing MediaPipe to start
-          videoRef.current.onloadeddata = () => {
-             if (isMounted.current && videoRef.current) {
-                 videoRef.current.play().catch(e => console.log("Play interrupted"));
-                 setIsLoaded(true); // <--- Triggers the MediaPipe effect
-             }
-          };
+          // Wait for video to actually load data
+          await new Promise((resolve) => {
+            videoRef.current.onloadeddata = () => {
+              videoRef.current.play().catch(e => console.log("Play interrupted"));
+              resolve();
+            };
+          });
+          if (isMounted.current) setIsLoaded(true);
         }
+
+        // --- STEP C: Initialize MediaPipe AI ---
+        hands = new Hands({
+          // FIX 2: Use baseUrl to point to the correct folder on GitHub Pages
+          locateFile: (file) => `${baseUrl}mediapipe/${file}`,
+        });
+
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1, 
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+        });
+
+        hands.onResults(onResults);
+
+        // --- STEP D: Start the Processing Loop ---
+        const processVideo = async () => {
+          if (!isMounted.current) return;
+
+          const video = videoRef.current;
+          // Check if video is ready and we aren't already processing a frame
+          if (video && video.readyState >= 2 && !isProcessingRef.current) {
+            try {
+                isProcessingRef.current = true;
+                await hands.send({ image: video });
+            } catch (error) {
+                // Ignore initial startup errors
+            } finally {
+                isProcessingRef.current = false;
+            }
+          }
+          
+          if (isMounted.current) {
+             animationId = requestAnimationFrame(processVideo);
+          }
+        };
+        
+        processVideo();
+
       } catch (err) {
-        if (isMounted.current) setCameraError("Camera blocked or missing.");
+        console.error("Camera System Error:", err);
+        if (isMounted.current) setCameraError("Camera access denied or missing.");
       }
     };
 
-    startCamera();
+    startSystem();
 
     return () => {
+      // Cleanup function
       if (currentStream) {
         currentStream.getTracks().forEach(track => track.stop());
       }
-    };
-  }, [inputMode, selectedDeviceId]);
-
-  // 3. MediaPipe Logic
-  useEffect(() => {
-    if (inputMode !== 'hand' || !isLoaded) return;
-
-    const hands = new Hands({
-      locateFile: (file) => `/mediapipe/${file}`,
-    });
-
-    hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1, 
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-
-    hands.onResults(onResults);
-
-    let animationId;
-    
-    const processVideo = async () => {
-      if (!isMounted.current) return;
-
-      // STRICT SAFETY CHECKS
-      const video = videoRef.current;
-      if (
-          video && 
-          video.readyState >= 2 && // 2 = HAVE_CURRENT_DATA
-          !video.paused && 
-          !video.ended &&
-          video.videoWidth > 0 &&  // Ensure dimensions exist
-          !isProcessingRef.current // Don't overlap frames
-      ) {
-        try {
-            isProcessingRef.current = true;
-            await hands.send({ image: video });
-        } catch (error) {
-            // SILENCE EXPECTED STARTUP ERRORS
-            // MediaPipe often throws "not readable" on the very first frame even if readyState is good.
-            // We ignore it to keep the console clean.
-            if (error && error.message && !error.message.includes("not readable")) {
-                 console.warn("Vision Frame Dropped:", error);
-            }
-        } finally {
-            isProcessingRef.current = false;
-        }
+      if (hands) {
+        hands.close();
       }
-
-      // Loop again
-      if (isMounted.current) {
-         animationId = requestAnimationFrame(processVideo);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
       }
-    };
-    
-    // Start loop
-    processVideo();
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      hands.close();
       isProcessingRef.current = false;
     };
-  }, [inputMode, isLoaded]);
+  }, [inputMode, selectedDeviceId]); // Re-run if input mode or camera selection changes
 
-  // --- Strict Hand State Logic ---
+  // --- Hand Gesture Logic ---
   const checkHandState = (landmarks) => {
     const wrist = landmarks[0];
     const tips = [8, 12, 16, 20]; 
@@ -196,7 +177,6 @@ const HandController = () => {
   };
 
   const onResults = (results) => {
-    // Safety check inside callback
     if (!isMounted.current || !canvasRef.current || !results.image || !videoRef.current) return;
 
     const videoWidth = videoRef.current.videoWidth;
@@ -211,6 +191,7 @@ const HandController = () => {
     ctx.save();
     ctx.clearRect(0, 0, videoWidth, videoHeight);
     
+    // Mirror effect
     ctx.translate(videoWidth, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(results.image, 0, 0, videoWidth, videoHeight);
@@ -229,10 +210,12 @@ const HandController = () => {
                   setUiState('aiming');
                   setIsAiming(true); 
 
+                  // Calculate cursor position
                   const wrist = landmarks[0];
                   const indexMcp = landmarks[5]; 
                   const centerX = (wrist.x + indexMcp.x) / 2;
                   const x = 1 - centerX; 
+                  // Map hand X (0.2 to 0.8) to Columns (0 to 6)
                   const col = Math.floor(((Math.max(0.2, Math.min(x, 0.8)) - 0.2) / 0.6) * 7);
                   const safeCol = Math.max(0, Math.min(6, col));
                   
@@ -246,6 +229,7 @@ const HandController = () => {
               setIsAiming(false); 
 
               if (logicState.current.wasFist) {
+                  // Must hold open for a few frames to confirm drop
                   if (logicState.current.openHoldFrames > 5) {
                       setUiState('dropping');
                       playMove(logicState.current.lastCol); 
@@ -257,6 +241,7 @@ const HandController = () => {
           }
       }
 
+      // Draw Skeleton
       const color = uiState === 'aiming' ? '#FFD700' : (uiState === 'dropping' ? '#00FFFF' : '#aaaaaa');
       ctx.shadowColor = color;
       ctx.shadowBlur = 15;
@@ -283,6 +268,7 @@ const HandController = () => {
          onChange={(e) => setSelectedDeviceId(e.target.value)}
          value={selectedDeviceId}
        >
+         {devices.length === 0 && <option>Finding Camera...</option>}
          {devices.map((device, index) => (
            <option key={device.deviceId} value={device.deviceId}>
              {device.label || `Scrying Glass ${index + 1}`}

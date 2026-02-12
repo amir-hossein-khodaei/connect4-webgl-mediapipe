@@ -38,16 +38,9 @@ const Scene = () => {
             {/* Fallback background in case HDR fails to load */}
 <color attach="background" args={['#87CEEB']} />
 
-<Environment 
-  files="/assets/venice_sunset_1k.hdr" 
-  blur={0.8} 
-  background={false} 
-  // If the file is missing, this prevents a crash:
-  fallback={null} 
-/>
-            {/* Optimization: Use preset if local file fails, or ensure file exists */}
+{/* FIX: Use baseUrl to correctly find the file on GitHub Pages */}
             <Environment 
-              files="/assets/venice_sunset_1k.hdr" 
+              files={`${baseUrl}assets/venice_sunset_1k.hdr`} 
               blur={0.8} 
               background={false} 
             />
