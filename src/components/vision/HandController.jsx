@@ -6,9 +6,9 @@ import { useGameStore } from '../../store/gameStore';
 const HandController = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  
   const baseUrl = import.meta.env.BASE_URL;
 
+  // SAFETY FLAGS
   const isProcessingRef = useRef(false); 
   const isMounted = useRef(false);       
 
@@ -24,26 +24,39 @@ const HandController = () => {
     wasFist: false, fistHoldFrames: 0, openHoldFrames: 0, lastCol: 3
   });
 
+  // 0. Mount Safety
   useEffect(() => {
     isMounted.current = true;
     return () => { isMounted.current = false; };
   }, []);
 
+  // 1. Fetch Devices (Independent Function)
   const fetchDevices = async () => {
     try {
       const allDevices = await navigator.mediaDevices.enumerateDevices();
       const videoInputs = allDevices.filter(device => device.kind === 'videoinput');
+      
       if (isMounted.current) {
         setDevices(videoInputs);
+        // If we have devices but none selected, select the first one
         if (videoInputs.length > 0 && !selectedDeviceId) {
-          setSelectedDeviceId(videoInputs[0].deviceId);
+           // Prefer the one labeled "back" or "default" if possible, otherwise first
+           setSelectedDeviceId(videoInputs[0].deviceId);
         }
       }
     } catch (err) {
-      console.warn("Device enumeration failed:", err);
+      console.warn("Could not list devices:", err);
     }
   };
 
+  // 2. Initial Device List Load
+  useEffect(() => {
+    if (inputMode === 'hand') {
+        fetchDevices();
+    }
+  }, [inputMode]);
+
+  // 3. Main Camera & AI Logic
   useEffect(() => {
     if (inputMode !== 'hand') return;
     
@@ -56,59 +69,55 @@ const HandController = () => {
       setCameraError(null);
 
       try {
-        // --- ATTEMPT 1: Get Camera Stream ---
-        let stream;
-        try {
-            // Soft constraints (no 'exact') to prevent OverconstrainedError
-            const constraints = {
-              video: selectedDeviceId 
-                ? { deviceId: selectedDeviceId, width: { ideal: 640 }, height: { ideal: 480 } }
-                : { width: { ideal: 640 }, height: { ideal: 480 } }
-            };
-            stream = await navigator.mediaDevices.getUserMedia(constraints);
-        } catch (err) {
-            console.warn("High quality stream failed, trying fallback...", err);
-            // Fallback: Simplest possible video request
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        }
+        // --- A. GET STREAM ---
+        const constraints = selectedDeviceId 
+            ? { video: { deviceId: { exact: selectedDeviceId }, width: 640, height: 480 } }
+            : { video: true }; // Fallback to default if no ID
+
+        console.log("Requesting camera with:", constraints);
         
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         currentStream = stream;
-        await fetchDevices();
+        
+        // Success! Refresh device list now that we have permissions
+        fetchDevices();
 
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await new Promise((resolve) => {
-            videoRef.current.onloadeddata = () => {
-              videoRef.current.play().catch(e => console.log("Play interrupted"));
-              resolve();
-            };
+             videoRef.current.onloadeddata = () => {
+                videoRef.current.play().catch(e => console.log("Play error:", e));
+                resolve();
+             }
           });
           if (isMounted.current) setIsLoaded(true);
         }
 
-        // --- ATTEMPT 2: Start AI ---
+        // --- B. START MEDIAPIPE ---
         hands = new Hands({
           locateFile: (file) => `${baseUrl}mediapipe/${file}`,
         });
 
         hands.setOptions({
           maxNumHands: 1,
-          modelComplexity: 0, // Lower complexity for better performance/compatibility
+          modelComplexity: 0, // 0 = Faster, 1 = More Accurate
           minDetectionConfidence: 0.5,
           minTrackingConfidence: 0.5,
         });
 
         hands.onResults(onResults);
 
+        // --- C. PROCESSING LOOP ---
         const processVideo = async () => {
           if (!isMounted.current) return;
           const video = videoRef.current;
+          
           if (video && video.readyState >= 2 && !isProcessingRef.current) {
             try {
                 isProcessingRef.current = true;
                 await hands.send({ image: video });
             } catch (error) {
-                // Squelch runtime errors
+                // Ignore frame errors
             } finally {
                 isProcessingRef.current = false;
             }
@@ -118,12 +127,17 @@ const HandController = () => {
         processVideo();
 
       } catch (err) {
-        console.error("Camera System Error:", err);
-        let msg = "Camera failed.";
-        if (err.name === 'NotReadableError') msg = "Camera is busy. Close other apps.";
-        if (err.name === 'NotAllowedError') msg = "Permission denied.";
-        if (err.name === 'NotFoundError') msg = "No camera found.";
+        console.error("Camera Error Full Log:", err);
+        
+        let msg = "Camera Failed";
+        if (err.name === 'NotReadableError') msg = "Camera is Busy (Close other apps)";
+        if (err.name === 'NotAllowedError') msg = "Permission Denied";
+        if (err.name === 'NotFoundError') msg = "No Camera Found";
+        
         if (isMounted.current) setCameraError(msg);
+        
+        // Even if it fails, try to list devices so user can switch
+        fetchDevices();
       }
     };
 
@@ -135,7 +149,7 @@ const HandController = () => {
       if (animationId) cancelAnimationFrame(animationId);
       isProcessingRef.current = false;
     };
-  }, [inputMode, selectedDeviceId]);
+  }, [inputMode, selectedDeviceId]); // Restart if user changes camera
 
   const checkHandState = (landmarks) => {
     const wrist = landmarks[0];
@@ -208,12 +222,13 @@ const HandController = () => {
 
   return (
     <div className="absolute bottom-6 right-6 z-50 flex flex-col items-end gap-2 font-serif">
+      {/* CAMERA SELECTOR */}
       <select 
          className="bg-[#050a15]/90 text-[#aaccff] text-[10px] p-1 rounded border border-[#4a5a7a] outline-none max-w-[150px] uppercase tracking-wider cursor-pointer"
          onChange={(e) => setSelectedDeviceId(e.target.value)}
          value={selectedDeviceId}
        >
-         {devices.length === 0 && <option>Camera Starting...</option>}
+         {devices.length === 0 && <option value="">Detecting...</option>}
          {devices.map((device, index) => (
            <option key={device.deviceId} value={device.deviceId}>
              {device.label || `Camera ${index + 1}`}
@@ -221,16 +236,23 @@ const HandController = () => {
          ))}
        </select>
 
+      {/* VIDEO PREVIEW */}
       <div className={`relative w-52 h-40 overflow-hidden rounded-lg transition-all duration-300 border-4 shadow-[0_0_20px_rgba(0,0,0,0.5)] bg-black ${uiState === 'aiming' ? 'border-[#ffd700]' : 'border-[#4a5a7a]'}`}>
         {cameraError ? (
-           <div className="flex items-center justify-center h-full p-4 text-red-500 text-xs text-center font-bold bg-black/90">
-             {cameraError}
+           <div className="flex flex-col items-center justify-center h-full p-4 text-red-500 text-xs text-center font-bold bg-black/90">
+             <span className="mb-2">⚠️ {cameraError}</span>
+             <button 
+                onClick={() => window.location.reload()}
+                className="bg-red-900/50 border border-red-500 px-2 py-1 rounded text-[9px] uppercase hover:bg-red-800"
+             >
+                Try Reload
+             </button>
            </div>
         ) : (
           <>
             <video ref={videoRef} className="hidden" playsInline muted autoPlay />
             <canvas ref={canvasRef} className="w-full h-full object-cover" />
-            {!isLoaded && <div className="absolute inset-0 flex items-center justify-center text-[#aaccff] text-xs animate-pulse bg-black/80">VISION STARTING...</div>}
+            {!isLoaded && <div className="absolute inset-0 flex items-center justify-center text-[#aaccff] text-xs animate-pulse bg-black/80">STARTING VISION...</div>}
           </>
         )}
       </div>
