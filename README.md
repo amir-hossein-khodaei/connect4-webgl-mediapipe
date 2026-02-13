@@ -2,8 +2,8 @@
 
 > **A fantasy-themed 3D Connect 4 game controlled entirely by hand gestures using Computer Vision and AI.**
 
-![Project Banner](https://via.placeholder.com/1200x400?text=Mystic+Connect+Gameplay+Screenshot)
-*(Note: Replace the link above with a real screenshot of your game once hosted)*
+![Project Banner](screenshot.png)
+
 
 ## 📖 About The Project
 
