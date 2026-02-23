@@ -21,21 +21,17 @@
   <img src="https://img.shields.io/badge/Three.js-Black?style=for-the-badge&logo=three.js&logoColor=white" alt="3D Rendering with Three.js" />
   <img src="https://img.shields.io/badge/MediaPipe-0075FA?style=for-the-badge&logo=google&logoColor=white" alt="Computer Vision by MediaPipe" />
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Powered by Vite" />
-  <!-- Status -->
-  <br/>
-  <img src="https://img.shields.io/github/last-commit/Amkhodaei83/connect4-3d-hand?style=flat-square&color=ffd700&labelColor=0a1a2a" alt="Last Commit" />
-  <img src="https://img.shields.io/github/languages/top/Amkhodaei83/connect4-3d-hand?style=flat-square&color=00aaff&labelColor=0a1a2a" alt="Top Language: JavaScript" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square&color=ffd700&labelColor=0a1a2a" alt="MIT License" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&color=ffd700&labelColor=0a1a2a" alt="MIT License" />
 
   <br />
   <br />
 
   <!-- Action Buttons -->
   <a href="https://Amkhodaei83.github.io/connect4-3d-hand/">
-    <img src="https://img.shields.io/badge/🔴_Live_Demo-Play_Now-ffd700?style=for-the-badge&logoColor=black" alt="Play Mystic Connect 3D" height="40" />
+    <img src="https://img.shields.io/badge/🔴_Live_Demo-Play_Now-ffd700?style=for-the-badge&logoColor=black" alt="Play Mystic Connect 3D" height="35" />
   </a>
-  <a href="https://github.com/Amkhodaei83/connect4-3d-hand/issues/new?template=bug_report.md">
-    <img src="https://img.shields.io/badge/🐛_Report_Bug-Get_Support-red?style=for-the-badge" alt="Report a Bug" height="40" />
+  <a href="#-getting-started">
+    <img src="https://img.shields.io/badge/SETUP_LOCALLY-222222?style=flat-square&logo=github&logoColor=white" alt="Setup Local Development Environment" height="35" />
   </a>
 </div>
 
@@ -43,6 +39,8 @@
 
 <!-- SECTION 2: TABLE OF CONTENTS -->
 ## 📚 Table of Contents
+<details>
+<summary><strong>Expand to view full navigation</strong></summary>
 
 - [🔮 About The Project](#-about-the-project)
   - [The Problem & Solution](#the-problem--solution)
@@ -55,6 +53,8 @@
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
 - [👨‍💻 Author](#-author)
+
+</details>
 
 ---
 
@@ -97,7 +97,7 @@ Unlike traditional web games that rely on mouse clicks, Mystic Connect introduce
 ### Live Experience
 <div align="center">
   <a href="https://Amkhodaei83.github.io/connect4-3d-hand/">
-    <img src="https://img.shields.io/badge/PLAY_NOW-Visit_Live_Demo-FFD700?style=for-the-badge&logo=google-chrome&logoColor=black" alt="Play Now Button" height="50" />
+    <img src="https://img.shields.io/badge/PLAY_NOW-Visit_Live_Demo-FFD700?style=for-the-badge&logo=google-chrome&logoColor=black" alt="Play Now Button" height="35" />
   </a>
   <p><em>(Works best on Chrome/Edge. Requires webcam permission for Hand Mode.)</em></p>
 </div>
@@ -289,9 +289,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
     *   [MediaPipe Team](https://google.github.io/mediapipe/)
     *   [Capsule Render](https://capsule-render.vercel.app/) for the header art.
 
----
+
+<br />
 <div align="center">
-  <br/>
-  <a href="#-mystic-connect-3d-hand-controlled-connect-4"><strong>⬆ Back to Top</strong></a>
-  <br/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0a1a2a&height=100&section=footer" width="100%" alt="Footer Wave">
 </div>
