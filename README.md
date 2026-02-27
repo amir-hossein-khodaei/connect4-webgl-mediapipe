@@ -280,7 +280,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## 👨‍💻 Author & Acknowledgments
 
 **Amirhossein Khodaei**
-*   GitHub: [@Amkhodaei83](https://github.com/Amkhodaei83)
+*   GitHub: [amir-hossein-khodae](https://github.com/amir-hossein-khodae)
 
 **Project created for "Basics of Artificial Intelligence" Lecture - 2026**
 
