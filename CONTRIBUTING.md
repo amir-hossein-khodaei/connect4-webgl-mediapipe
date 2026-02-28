@@ -1,49 +1,33 @@
-﻿# Contributing to Mystic Connect
+# Contributing to connect4-webgl-mediapipe
 
-First off, thank you for considering contributing to Mystic Connect! It's people like you that make Mystic Connect such a great tool.
+Contributions are welcome! This project uses React, Three.js, and MediaPipe.
 
-## Development Setup
+## Getting Started
 
-1.  **Fork and Clone**
-    \\\ash
-    git clone https://github.com/Amkhodaei83/connect4-3d-hand.git
-    cd connect4-3d-hand
-    npm install
-    \\\
+1. Fork the repository.
+2. Install dependencies: `npm install`
+3. Start the dev server: `npm run dev`
+4. Create a branch: `git checkout -b feat/your-feature`
 
-2.  **Running Locally**
-    \\\ash
-    npm run dev
-    # Open http://localhost:5173
-    \\\
+## What to Contribute
 
-3.  **MediaPipe Assets**
-    Ensure the \public/mediapipe/\ folder contains the necessary \.wasm\ and \.data\ files. These are critical for the Hand Tracking engine.
-
-## Pull Request Process
-
-1.  Create a new branch: \git checkout -b feature/amazing-feature\
-2.  Make your changes.
-3.  **Lint your code**: Run \
-pm run lint\ before committing.
-4.  Commit your changes using **Conventional Commits**:
-    *   \eat: Add new magic spell effect\
-    *   \ix: Correct minimax depth calculation\
-    *   \docs: Update README installation steps\
-5.  Push to your branch and open a Pull Request.
+- 🐛 Bug fixes (especially browser compatibility issues)
+- 🎮 AI difficulty improvements (Minimax depth / heuristics)
+- 📷 MediaPipe hand-tracking accuracy improvements
+- 📱 Mobile/touch responsiveness
 
 ## Code Style
 
-*   **React:** Functional components with Hooks.
-*   **State:** Use Zustand stores (\src/store/gameStore.js\).
-*   **3D:** Use \@react-three/fiber\ declarative components inside \Canvas\.
-*   **Styling:** Utility-first CSS via Tailwind.
+- TypeScript strict mode is enforced.
+- Follow existing component structure in `src/`.
+- All new components must be functional with hooks — no class components.
 
-## Reporting Bugs
+## Commit Convention
 
-Please use the **Bug Report** issue template and include:
-*   Browser & Version (e.g., Chrome 120)
-*   Device (Desktop/Laptop/Mobile)
-*   Console Errors (F12 > Console)
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat:` New feature
+- `fix:` Bug fix
+- `perf:` Performance improvement
+- `docs:` Documentation only
 
-Thank you for your contributions!
+<!-- TODO: Add testing instructions once a test suite is configured. -->
