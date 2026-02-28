@@ -9,7 +9,7 @@
   <br />
 
   <!-- Animated Typing SVG: Highlighting Key Tech & Features -->
-  <a href="https://github.com/Amkhodaei83/connect4-3d-hand">
+  <a href="https://github.com/amir-hossein-khodaei/connect4-webgl-mediapipe">
     <img src="https://readme-typing-svg.demolab.com?font=Cinzel&weight=700&size=28&duration=3000&pause=1000&color=FFD700&center=true&vCenter=true&width=500&lines=Powered+by+React+Three+Fiber;Controlled+by+MediaPipe+Hand+Tracking;Minimax+AI+with+Alpha-Beta+Pruning;Immersive+Fantasy+WebGL+Environment" alt="Typing Animation: React Three Fiber, MediaPipe, Minimax AI" />
   </a>
 
@@ -27,7 +27,7 @@
   <br />
 
   <!-- Action Buttons -->
-  <a href="https://Amkhodaei83.github.io/connect4-3d-hand/">
+  <a href="https://amir-hossein-khodaei.github.io/connect4-webgl-mediapipe/">
     <img src="https://img.shields.io/badge/🔴_Live_Demo-Play_Now-ffd700?style=for-the-badge&logoColor=black" alt="Play Mystic Connect 3D" height="35" />
   </a>
   <a href="#-getting-started">
@@ -96,7 +96,7 @@ Unlike traditional web games that rely on mouse clicks, Mystic Connect introduce
 
 ### Live Experience
 <div align="center">
-  <a href="https://Amkhodaei83.github.io/connect4-3d-hand/">
+  <a href="https://amir-hossein-khodaei.github.io/connect4-webgl-mediapipe/">
     <img src="https://img.shields.io/badge/PLAY_NOW-Visit_Live_Demo-FFD700?style=for-the-badge&logo=google-chrome&logoColor=black" alt="Play Now Button" height="35" />
   </a>
   <p><em>(Works best on Chrome/Edge. Requires webcam permission for Hand Mode.)</em></p>
@@ -148,8 +148,8 @@ Follow these instructions to set up the project locally. You'll need **Node.js 1
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/Amkhodaei83/connect4-3d-hand.git
-    cd connect4-3d-hand
+    git clone https://github.com/amir-hossein-khodaei/connect4-webgl-mediapipe.git
+    cd connect4-webgl-mediapipe
     ```
 
 2.  **Install Dependencies**

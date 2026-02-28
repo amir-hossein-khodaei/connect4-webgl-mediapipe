@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // CHANGE THIS LINE: Use your repository name with slashes
-  base: '/connect4-3d-hand/', 
+  base: '/connect4-webgl-mediapipe/', 
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
